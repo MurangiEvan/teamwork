@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  fullname  String
+  email     String   @unique
+  password  String
+  phone     String?
+  avatar    String?
+  role      String   @default("USER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings Booking[]
+  reviews  Review[]
+  favorites Favorite[]
+  labs     Laboratory[]
+}
+
+model Laboratory {
+  id            String   @id @default(cuid())
+  ownerId       String
+  owner         User     @relation(fields: [ownerId], references: [id])
+  labName       String
+  logo          String?
+  email         String?
+  phone         String?
+  website       String?
+  address       String
+  city          String
+  province      String?
+  country       String?
+  latitude      Float?
+  longitude     Float?
+  description   String?
+  verified      Boolean  @default(false)
+  openingHours  String?
+  closingHours  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  services Service[]
+  bookings Booking[]
+  reviews  Review[]
+  favorites Favorite[]
+}
+
+model Service {
+  id            String   @id @default(cuid())
+  laboratoryId  String
+  laboratory    Laboratory @relation(fields: [laboratoryId], references: [id])
+  serviceName   String
+  description   String?
+  category      String?
+  price         Float
+  duration      String?
+  createdAt     DateTime @default(now())
+
+  bookings Booking[]
+}
+
+model Booking {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  laboratoryId  String
+  laboratory    Laboratory @relation(fields: [laboratoryId], references: [id])
+  serviceId     String
+  service       Service  @relation(fields: [serviceId], references: [id])
+  bookingDate   String
+  bookingTime   String
+  status        String   @default("PENDING")
+  createdAt     DateTime @default(now())
+}
+
+model Review {
+  id            String   @id @default(cuid())
+  laboratoryId  String
+  laboratory    Laboratory @relation(fields: [laboratoryId], references: [id])
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  rating        Int
+  comment       String?
+  createdAt     DateTime @default(now())
+}
+
+model Favorite {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  laboratoryId  String
+  laboratory    Laboratory @relation(fields: [laboratoryId], references: [id])
+  createdAt     DateTime @default(now())
+}

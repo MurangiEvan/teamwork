@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  STUDENT
+  TUTOR
+  TECHNICIAN
+}
+
+enum VenueStatus {
+  OPEN
+  CLOSED
+  IN_CLASS
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  passwordHash  String
+  role          UserRole  @default(STUDENT)
+  sessions      Session[]
+  reports       Report[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Venue {
+  id             String      @id @default(cuid())
+  name           String      @unique
+  currentStatus  VenueStatus @default(CLOSED)
+  sessions       Session[]
+  reports        Report[]
+  lastUpdated    DateTime    @updatedAt
+}
+
+model Session {
+  id          String    @id @default(cuid())
+  venueId     String
+  tutorId     String
+  signInTime  DateTime  @default(now())
+  signOutTime DateTime?
+
+  venue       Venue     @relation(fields: [venueId], references: [id])
+  tutor       User      @relation(fields: [tutorId], references: [id])
+}
+
+model Report {
+  id        String   @id @default(cuid())
+  tutorId   String
+  venueId   String
+  content   String
+  status    String   @default("PENDING")
+  timestamp DateTime @default(now())
+
+  tutor     User     @relation(fields: [tutorId], references: [id])
+  venue     Venue    @relation(fields: [venueId], references: [id])
+}

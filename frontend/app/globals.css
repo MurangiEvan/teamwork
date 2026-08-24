@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@theme {
+  /* TUT brand: official red + blue scales */
+  --color-tut-red-50: #fdecef;
+  --color-tut-red-100: #fbd2db;
+  --color-tut-red-200: #f6a3b4;
+  --color-tut-red-300: #ef6f8a;
+  --color-tut-red-400: #e23a5f;
+  --color-tut-red-500: #d12445;
+  --color-tut-red-600: #c8102e; /* TUT primary */
+  --color-tut-red-700: #a30d25;
+  --color-tut-red-800: #7e0a1c;
+  --color-tut-red-900: #5b0714;
+  --color-tut-red-950: #380409;
+
+  --color-tut-blue-50: #e6edf3;
+  --color-tut-blue-100: #bccfdf;
+  --color-tut-blue-200: #8aacc6;
+  --color-tut-blue-300: #5889ac;
+  --color-tut-blue-400: #346c93;
+  --color-tut-blue-500: #1a547a;
+  --color-tut-blue-600: #003366; /* TUT secondary */
+  --color-tut-blue-700: #002a52;
+  --color-tut-blue-800: #00203d;
+  --color-tut-blue-900: #00172a;
+  --color-tut-blue-950: #000e19;
+}
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+}
+
+html.dark {
+  --background: #020617;
+  --foreground: #f8fafc;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
