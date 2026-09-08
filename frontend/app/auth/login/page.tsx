@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:5000/api' : '');
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,6 +19,10 @@ export default function LoginPage() {
     const formData = new FormData(event.currentTarget);
 
     try {
+      if (!API_URL) {
+        throw new Error('The API URL is not configured for this deployment.');
+      }
+
       const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -29,9 +33,10 @@ export default function LoginPage() {
         }),
       });
 
-      const data = await response.json();
+      const contentType = response.headers.get('content-type') || '';
+      const data = contentType.includes('application/json') ? await response.json() : null;
       if (!response.ok) {
-        throw new Error(data.message || 'Unable to log in');
+        throw new Error(data?.message || 'The API returned an unexpected response. Check the deployed API URL.');
       }
 
       router.push('/dashboard');
