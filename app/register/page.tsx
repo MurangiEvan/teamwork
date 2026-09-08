@@ -26,7 +26,7 @@ export default function RegisterPage() {
       return;
     }
 
-    setMessage(`Account created for ${data.email}.`);
+    window.location.href = '/welcome';
   }
 
   return (
@@ -58,8 +58,8 @@ export default function RegisterPage() {
           Role
           <select className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={role} onChange={(e) => setRole(e.target.value)}>
             <option value="STUDENT">STUDENT</option>
-            <option value="TUTOR">TUTOR</option>
-            <option value="TECHNICIAN">TECHNICIAN</option>
+            <option value="ADMIN">ADMIN</option>
+            <option value="LAB_MANAGER">MANAGER</option>
           </select>
         </label>
 

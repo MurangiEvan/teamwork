@@ -30,7 +30,7 @@ router.post('/', authMiddleware, async (req: AuthenticatedRequest, res, next) =>
 
 router.delete('/:id', authMiddleware, async (req: AuthenticatedRequest, res, next) => {
   try {
-    await prisma.favorite.delete({ where: { id: req.params.id } });
+    await prisma.favorite.delete({ where: { id: String(req.params.id) } });
     res.json({ message: 'Favorite removed' });
   } catch (error) {
     next(error);

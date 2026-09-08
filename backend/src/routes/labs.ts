@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../config/prisma';
 import { authMiddleware, AuthenticatedRequest } from '../middleware/auth';
 import { HttpError } from '../middleware/errorHandler';
+import { MANAGEMENT_ROLES, requireRoles } from '../middleware/roles';
 
 const router = Router();
 
@@ -45,7 +46,7 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-router.post('/', authMiddleware, async (req: AuthenticatedRequest, res, next) => {
+router.post('/', authMiddleware, requireRoles(...MANAGEMENT_ROLES), async (req: AuthenticatedRequest, res, next) => {
   try {
     const body = labSchema.parse(req.body);
     const lab = await prisma.laboratory.create({
@@ -67,6 +68,25 @@ router.post('/', authMiddleware, async (req: AuthenticatedRequest, res, next) =>
       },
     });
     res.status(201).json(lab);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch('/:id', authMiddleware, requireRoles(...MANAGEMENT_ROLES), async (req, res, next) => {
+  try {
+    const body = labSchema.partial().parse(req.body);
+    const lab = await prisma.laboratory.update({ where: { id: String(req.params.id) }, data: body });
+    res.json(lab);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/:id', authMiddleware, requireRoles(...MANAGEMENT_ROLES), async (req, res, next) => {
+  try {
+    await prisma.laboratory.delete({ where: { id: String(req.params.id) } });
+    res.json({ message: 'Laboratory deleted' });
   } catch (error) {
     next(error);
   }

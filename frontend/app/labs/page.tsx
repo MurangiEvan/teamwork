@@ -1,9 +1,29 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
 import { MapPin, Star, Sparkles, Search } from 'lucide-react';
 import { campuses, campusProvinces } from '@/lib/campuses';
 
 export default function LabsPage() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCampus, setSelectedCampus] = useState('all');
+  const [selectedLabType, setSelectedLabType] = useState('all');
+
+  const labTypes = Array.from(new Set(campuses.flatMap((campus) => campus.services.map((service) => service.name)))).sort();
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+  const filteredCampuses = campuses.filter((campus) => {
+    const matchesSearch = !normalizedSearch || [campus.name, campus.shortName, campus.city, campus.description, ...campus.services.map((service) => service.name)]
+      .join(' ')
+      .toLowerCase()
+      .includes(normalizedSearch);
+    const matchesCampus = selectedCampus === 'all' || campus.id === selectedCampus;
+    const matchesLabType = selectedLabType === 'all' || campus.services.some((service) => service.name === selectedLabType);
+
+    return matchesSearch && matchesCampus && matchesLabType;
+  });
+
   return (
     <main className="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <header className="border-b-4 border-tut-red-600 bg-tut-blue-700 text-white">
@@ -37,8 +57,45 @@ export default function LabsPage() {
             </p>
             <div className="mt-6 flex items-center gap-2 rounded-2xl border border-white/20 bg-white px-3 py-3 text-slate-900 shadow-sm">
               <Search className="h-4 w-4 text-tut-blue-700" />
-              <input className="w-full bg-transparent outline-none" placeholder="Search by campus, lab, or service" />
+              <input
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                className="w-full bg-transparent outline-none"
+                placeholder="Search by campus, lab, or service"
+                aria-label="Search campuses and lab types"
+              />
             </div>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <label className="text-sm font-medium text-white">
+                Campus
+                <select
+                  value={selectedCampus}
+                  onChange={(event) => setSelectedCampus(event.target.value)}
+                  className="mt-1 w-full rounded-2xl border border-white/20 bg-white px-3 py-3 font-normal text-slate-900 outline-none"
+                >
+                  <option value="all">All campuses</option>
+                  {campuses.map((campus) => (
+                    <option key={campus.id} value={campus.id}>{campus.name}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-sm font-medium text-white">
+                Lab type
+                <select
+                  value={selectedLabType}
+                  onChange={(event) => setSelectedLabType(event.target.value)}
+                  className="mt-1 w-full rounded-2xl border border-white/20 bg-white px-3 py-3 font-normal text-slate-900 outline-none"
+                >
+                  <option value="all">All lab types</option>
+                  {labTypes.map((labType) => (
+                    <option key={labType} value={labType}>{labType}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <p className="mt-3 text-sm text-white/80" aria-live="polite">
+              Showing {filteredCampuses.length} of {campuses.length} campuses
+            </p>
           </div>
         </div>
       </section>
@@ -47,7 +104,9 @@ export default function LabsPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="space-y-12">
             {campusProvinces.map((province) => {
-              const provinceCampuses = campuses.filter((c) => c.province === province);
+              const provinceCampuses = filteredCampuses.filter((c) => c.province === province);
+              if (provinceCampuses.length === 0) return null;
+
               return (
                 <div key={province}>
                   <div className="mb-4 flex items-center gap-3">
@@ -95,6 +154,23 @@ export default function LabsPage() {
                 </div>
               );
             })}
+            {filteredCampuses.length === 0 && (
+              <div className="rounded-3xl border-2 border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-700 dark:bg-slate-900">
+                <h2 className="text-xl font-semibold text-tut-blue-700 dark:text-white">No campuses found</h2>
+                <p className="mt-2 text-sm text-slate-500">Try another search or reset the filters.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setSelectedCampus('all');
+                    setSelectedLabType('all');
+                  }}
+                  className="mt-5 rounded-full bg-tut-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-tut-red-700"
+                >
+                  Reset filters
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>

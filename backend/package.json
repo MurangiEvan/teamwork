@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "promote-user": "ts-node scripts/promote-user.ts"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

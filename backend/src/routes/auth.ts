@@ -12,6 +12,7 @@ const registerSchema = z.object({
   fullname: z.string().min(2),
   email: z.string().email(),
   password: z.string().min(6),
+  role: z.enum(['STUDENT', 'ADMIN', 'LAB_MANAGER']).default('STUDENT'),
   phone: z.string().optional(),
 });
 
@@ -46,7 +47,7 @@ router.post('/register', async (req, res, next) => {
 
     const password = await bcrypt.hash(body.password, 10);
     const user = await prisma.user.create({
-      data: { fullname: body.fullname, email: body.email, password, phone: body.phone ?? null },
+      data: { fullname: body.fullname, email: body.email, password, role: body.role, phone: body.phone ?? null },
     });
 
     const token = signToken({ id: user.id, role: user.role, email: user.email });
